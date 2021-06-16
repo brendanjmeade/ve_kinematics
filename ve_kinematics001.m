@@ -43,6 +43,11 @@ end
 
 % Solve for equivalent slip disribution
 effectiveslip = G \ v;
+if size(G, 1) > size(G, 2)
+   effectiveslip = inv(G' * G) * G' * v;
+elseif size(G, 2) > size(G, 1)
+   effectiveslip = G' * inv(G * G') * v;
+end
 
 fontsize = 18;
 markersize = 15;
@@ -57,6 +62,9 @@ set(gca, "fontsize", fontsize);
 set(gca, "Tickdir", "out")
 box on;
 legend("Savage and Prescott", "effective basal dislocations")
+
+figure;
+plot(effectiveslip);
 
 
 

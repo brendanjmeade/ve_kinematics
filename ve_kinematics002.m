@@ -80,3 +80,6 @@ ylabel("v / s_0", "Fontsize", fontsize);
 set(gca, "fontsize", fontsize);
 set(gca, "Tickdir", "out")
 
+
+% TODO: Direct/Full VE, 2) VE from block only (no elastic), 3) VE from block with elastic
+% TODO: Improve visualziation of estimated slip patches 

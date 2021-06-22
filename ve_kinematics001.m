@@ -6,7 +6,7 @@ n_pts = 100;
 x = linspace(-200e3, 200e3, n_pts);
 y = zeros(size(x));
 t = 50 * siay;
-H = 10e3;
+H = 15e3;
 mu = 30e10;
 eta = 1e19;
 T = 100 * siay;
@@ -64,7 +64,7 @@ box on;
 legend("Savage and Prescott", "effective basal dislocations")
 
 figure;
-plot(effectiveslip);
+plot(effectiveslip, '-k+');
 
 
 

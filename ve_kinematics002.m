@@ -83,3 +83,5 @@ set(gca, "Tickdir", "out")
 
 % TODO: Direct/Full VE, 2) VE from block only (no elastic), 3) VE from block with elastic
 % TODO: Improve visualziation of estimated slip patches 
+% TODO: Set up inversion example with deep dislocation and VE
+% TODO: Add Burgers rheology example from Hetland

@@ -3,9 +3,8 @@ close all;
 
 Cycles = 40;
 Period = 10;
-delt = Period / 100;
+delt = Period / 10;
 x = linspace(-10, 10, 100);
-
 D = 1;
 t  = [0:delt:Period*Cycles];
 vt = t(1:end-1) + diff(t);
@@ -17,7 +16,6 @@ disp(sprintf('\t\n\nMaxwell:'));
 Maxwell.muM = 1.0;
 Maxwell.etaM = Tau;
 [phi, psi] = GIDVE_MaterialConstruct('Maxwell', 'muM', Maxwell.muM, 'etaM', Maxwell.etaM);
-% [Maxwell.UM Maxwell.N_mxl Maxwell.vt Maxwell.VM] = IseisDispVE(muC, phi, psi, 40, x, t, b, D);
 [~, ~, ~, Maxwell.v] = IseisDispVE(muC, phi, psi, 40, x, t, b, D);
 
 disp(sprintf('\t\n\nBurgers:'));
@@ -30,10 +28,12 @@ Burgers.etaV = Tau;
 
 % Plot the cycle invariance velocities
 figure("color", "w");
-tpos = find(vt>Period*(Cycles-1) & vt<Period*Cycles);
 hold on;
-plot(x, Maxwell.v(:, tpos(1)), 'b-', x, Burgers.v(:, tpos(1)), 'r-');
-plot(x, Maxwell.v(:, tpos(9:8:end)), 'b-', x, Burgers.v(:, tpos(9:8:end)), 'r-');
+tpos = (Cycles*Period-Period+1):1:Cycles*Period-1;
+for i = 1:numel(tpos)
+    plot(x, Maxwell.v(:, tpos(i)), 'b-');
+    plot(x, Burgers.v(:, tpos(i)), 'r-');
+end
 xlabel('distance / locking depth', 'FontSize', 14)
 ylabel('velocity', 'FontSize', 14)
 title('cycle invariant interseismic velocities', 'FontSize', 14)

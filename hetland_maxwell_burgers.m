@@ -7,7 +7,6 @@ delt = Period / 10;
 x = linspace(-10, 10, 100);
 D = 1;
 t  = [0:delt:Period*Cycles];
-vt = t(1:end-1) + diff(t);
 muC = 1.0;
 Tau = 0.5;
 b = struct('type', 'periodic', 'magnitude', 1.0, 'cycles', Cycles, 'period', Period, 'phase', 0.0);
@@ -36,7 +35,7 @@ for i = 1:numel(tpos)
 end
 xlabel('distance / locking depth', 'FontSize', 14);
 ylabel('velocity', 'FontSize', 14);
-title('cycle invariant interseismic velocities', 'FontSize', 14);
 legend('Maxwell model', 'Burgers model');
 box on;
 set(gca, "TickDir", "out");
+set(gca, "FontSize", 14);

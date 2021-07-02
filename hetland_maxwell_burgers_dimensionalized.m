@@ -1,11 +1,11 @@
 clear all;
 close all;
 
-cycles = 40;
+cycles = 100;
 period = 10;
 delt = period / 10;
-x = linspace(-10, 10, 100);
-D = 1;
+x = linspace(-100e3, 100e3, 100);
+D = 15e3;
 t  = [0:delt:period*cycles];
 muC = 1.0;
 tau = 0.5;

@@ -12,13 +12,13 @@ muC = 1.0;
 Tau = 0.5;
 b = struct('type', 'periodic', 'magnitude', 1.0, 'cycles', Cycles, 'period', Period, 'phase', 0.0);
 
-disp(sprintf('\t\n\nMaxwell:'));
+disp(sprintf('\n\nMaxwell:'));
 Maxwell.muM = 1.0;
 Maxwell.etaM = Tau;
 [phi, psi] = GIDVE_MaterialConstruct('Maxwell', 'muM', Maxwell.muM, 'etaM', Maxwell.etaM);
 [~, ~, ~, Maxwell.v] = IseisDispVE(muC, phi, psi, 40, x, t, b, D);
 
-disp(sprintf('\t\n\nBurgers:'));
+disp(sprintf('\n\nBurgers:'));
 Burgers.muM = 1.0;
 Burgers.muV = 1.0;
 Burgers.etaM = Tau * 10;
@@ -34,9 +34,9 @@ for i = 1:numel(tpos)
     plot(x, Maxwell.v(:, tpos(i)), 'b-');
     plot(x, Burgers.v(:, tpos(i)), 'r-');
 end
-xlabel('distance / locking depth', 'FontSize', 14)
-ylabel('velocity', 'FontSize', 14)
-title('cycle invariant interseismic velocities', 'FontSize', 14)
-legend('Maxwell model', 'Burgers model')
+xlabel('distance / locking depth', 'FontSize', 14);
+ylabel('velocity', 'FontSize', 14);
+title('cycle invariant interseismic velocities', 'FontSize', 14);
+legend('Maxwell model', 'Burgers model');
 box on;
 set(gca, "TickDir", "out");

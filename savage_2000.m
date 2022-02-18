@@ -1,4 +1,4 @@
-function v = SavageVelocity(x, y, t, H, mu, eta, T)
+function v = savage_2000(x, y, t, H, mu, eta, T)
 % This calculates the velocity at a point (x, y) in time from Savage's
 % viscoelastic earthquake cycle result from 2000
 % (v. 105, no. B11, p. 25,525-25-532)

@@ -1,5 +1,7 @@
 close all;
-clear all;
+clear variables;
+
+addpath(genpath("/Users/meade/Documents/MATLAB"))
 
 siay = 1;
 n_pts = 100;

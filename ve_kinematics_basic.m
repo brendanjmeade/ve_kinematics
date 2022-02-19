@@ -36,7 +36,7 @@ set(gcf, "Color", "white")
 box on;
 set(gca, "XTick", [-200, -100, 0, 100, 200]);
 set(gca, "YTick", [-2.0, -1.0, 0.0, 1.0, 2.0]);
-set(gca, "YTickLabel", {"-2.0", "-1.0", "0.0", "1.0", "2.0"});
+set(gca, "YTickLabel", ["-2.0", "-1.0", "0.0", "1.0", "2.0"]);
 legend([ve_handle(1), steady_state_handle], "viscoelastic", "steady state")
 title("steady state and viscoelastic velocity profiles", "fontsize", fontsize, FontWeight="normal")
 
@@ -73,7 +73,7 @@ for i = 1:F.nfaults
 
     % Draw patch width
     fh = fill([F.xf(i) - F.fault_width, F.xf(i), F.xf(i), F.xf(i) - F.fault_width], [0.0, 0.0, 0.5, 0.5], "y");
-    fh.FaceColor = 0.85 * [1, 1, 1];
+    fh.FaceColor = 0.50 * [1, 1, 1];
     fh.EdgeColor = "None";
 
     % Draw velocity profile
@@ -89,49 +89,66 @@ for i = 1:F.nfaults
     if i == 16
         set(gca, "XTick", [-200, 0, 200]);
         set(gca, "YTick", [0.0, 0.25, 0.5]);
-        set(gca, "YTickLabel", {"0.00", "0.25", "0.50"});
+        set(gca, "YTickLabel", ["0.00", "0.25", "0.50"]);
         xlabel("x (km)");
         ylabel("v (mm/yr)");
         set(gca, "fontsize", fontsize);
     end
 end
-% set(gca, "fontsize", fontsize);
 set(gcf, "Color", "white")
 sgtitle("velocities from unit slip on 20 basal dislocation patches", "fontsize", fontsize);
 
 
 % Solve for equivalent slip disribution
-v = v_viscoelastic(1, :);
-v = v(:);
-effectiveslip = G \ v;
-if size(G, 1) > size(G, 2)
-   effectiveslip = inv(G' * G) * G' * v;
-elseif size(G, 2) > size(G, 1)
-   effectiveslip = G' * inv(G * G') * v;
+for i = 1:n_ve_profiles
+    v = v_viscoelastic(i, :);
+    v = v(:);
+    effectiveslip = G \ v;
+    if size(G, 1) > size(G, 2)
+       effectiveslip = inv(G' * G) * G' * v; %#ok<*MINV> 
+    elseif size(G, 2) > size(G, 1)
+       effectiveslip = G' * inv(G * G') * v;
+    end
+    basal_model_velocities = G * effectiveslip;
+    
+    % Plot comparision of direct VE calculation and basal approximation
+    markersize = 15;
+    figure("Position", [0, 0, 600, 700]);
+    set(gcf, "Color", "w");
+    
+    subplot(2, 1, 1)
+    hold on;
+    plot(x / 1e3, v, '-b', 'markersize', markersize, LineWidth=2.0);
+    plot(x(1:20:end) / 1e3, basal_model_velocities(1:20:end), '.r', 'markersize', markersize);
+    set(gca, "XLim", [-200, 200]);
+    set(gca, "XTick", [-200, -100, 0, 100, 200]);
+    set(gca, "YLim", [-2, 2]);
+    set(gca, "YTick", [-2.0, -1.0, 0.0, 1.0, 2.0]);
+    set(gca, "YTickLabel", ["-2.0", "-1.0", "0.0", "1.0", "2.0"]);
+    xlabel("x (km)");
+    ylabel("v (mm/yr)");
+    set(gca, "fontsize", fontsize);
+    set(gca, "Tickdir", "out")
+    box on;
+    legend("Maxwell viscoelastic model", "basal dislocations representation", Location="northwest");
+    title("forward viscoelastic and basal model velocities", "fontsize", fontsize, FontWeight="normal")
+    
+    subplot(2, 1, 2)
+    bar_x = F.xf - F.fault_width / 2;
+    bh = bar(bar_x, effectiveslip, 1.0, "red");
+    set(gca, "XLim", [-200, 200]);
+    set(gca, "XTick", [-200, -100, 0, 100, 200]);
+    set(gca, "YLim", [-4, 4]);
+    set(gca, "YTick", [-4.0, -2.0, 0.0, 2.0, 4.0]);
+    set(gca, "YTickLabel", ["-4.0", "-2.0", "0.0", "2.0", "4.0"]);
+    xlabel("x (km)");
+    ylabel("s (mm/yr)");
+    set(gca, "fontsize", fontsize);
+    set(gca, "Tickdir", "out")
+    box on;
+    legend("basal patch slip rates", Location="northwest");
+    title("slip rates on basal slip patches", "fontsize", fontsize, FontWeight="normal")
+
+    suptitle_string = sprintf("t / T = %04.2f", t_vec(i) / T);
+    suptitle(suptitle_string, fontsize)
 end
-basal_model_velocities = G * effectiveslip;
-
-% Plot comparision of direct VE calculation and basal approximation
-markersize = 15;
-figure;
-set(gcf, "Color", "w");
-hold on;
-plot(x / 1e3, v, '-b', 'markersize', markersize, LineWidth=2.0);
-plot(x(1:20:end) / 1e3, basal_model_velocities(1:20:end), '.r', 'markersize', markersize);
-set(gca, "XTick", [-200, -100, 0, 100, 200]);
-set(gca, "YTick", [-2.0, -1.0, 0.0, 1.0, 2.0]);
-set(gca, "YTickLabel", {"-2.0", "-1.0", "0.0", "1.0", "2.0"});
-xlabel("x (km)");
-ylabel("v (mm/yr)");
-set(gca, "fontsize", fontsize);
-set(gca, "Tickdir", "out")
-box on;
-legend("Maxwell viscoelastic model", "basal dislocations representation", Location="northwest");
-
-return;
-
-figure;
-plot(effectiveslip, '-k+');
-
-
-

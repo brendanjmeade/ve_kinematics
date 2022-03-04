@@ -3,5 +3,6 @@ imposed*/
 *.pdf
 *.jpg
 *.png
+*.mat
 *.asv
 .DS_Store

@@ -5,12 +5,13 @@ addpath functions/
 
 % Specify parameters
 M2KM = 1e-3;
+SECONDS_IN_A_YEAR = 60 * 60 * 24 * 365;
 H = 20e3; % Transition depth
 T = 100; % Duration of earthquake cycle
 eta = 3e18; % Viscosity-like parameter
 n = 3; % Power-law exponent
 x = linspace(-200e3, 200e3, 400);
-t = 1; % Observation year
+t = 1 * SECONDS_IN_A_YEAR; % Observation year
 
 % Call to Mallick wrapper function
 velocity_profile = mallick_power_law(x, t, H, eta, n, T);

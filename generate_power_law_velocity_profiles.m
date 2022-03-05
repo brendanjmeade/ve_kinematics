@@ -16,7 +16,7 @@ M2KM = 1e-3;
 H = 20e3; % Transition depth
 T = 200; % Duration of earthquake cycle
 eta = 2e19; % Viscosity-like parameter
-x = linspace(-200e3, 200e3, 40);
+x = linspace(-200e3, 200e3, 400);
 
 n_array = [1, 3, 6];
 eta_array = [3e18, 3e19, 3e23];

@@ -164,8 +164,7 @@ if SAVE_FIGURES
 end
 
 % Solve for equivalent slip disribution
-% for j = 1:n_ve_profiles
-for j = 4
+for j = 1:n_ve_profiles
     markersize = 18;
     figure("Position", [0, 0, 1400, 800]);
     set(gcf, "Color", "w");
@@ -183,15 +182,16 @@ for j = 4
         % Plot comparision of direct VE calculation and basal approximation
         subplot(2, 3, i)
         hold on;
-        plot(x / 1e3, v, '--r', 'markersize', markersize, LineWidth=2.0);
-        plot(x(1:20:end) / 1e3, basal_model_velocities(1:20:end), '.b', 'markersize', markersize);
+        vb = basal_model_velocities;
+        plot(x / 1e3, sign(vb) .* abs(vb).^(1.0/3.0), '-b', 'markersize', markersize, LineWidth=2.0);
+        plot(x / 1e3, sign(v) .* abs(v).^(1.0/3.0), '--r', 'markersize', markersize, LineWidth=2.0);
         set(gca, "XLim", [-200, 200]);
         set(gca, "XTick", [-200, -100, 0, 100, 200]);
-        set(gca, "YLim", [-2, 2]);
-        set(gca, "YTick", [-2.0, -1.0, 0.0, 1.0, 2.0]);
-        set(gca, "YTickLabel", ["-2.0", "-1.0", "0.0", "1.0", "2.0"]);
+        set(gca, "YLim", [-3, 3]);
+        set(gca, "YTick", [-3.0, -2.0, -1.0, 0.0, 1.0, 2.0, 3.0]);
+        set(gca, "YTickLabel", ["-3.0", "-2.0", "-1.0", "0.0", "1.0", "2.0", "3.0"]);
         xlabel("$x \; \mathrm{(km)}$", "interpreter", "latex");
-        ylabel("$v \; \mathrm{(mm/yr)}$",  "interpreter", "latex");
+        ylabel("$v \; \mathrm{(mm/yr)}^{1/3}$",  "interpreter", "latex");
         set(gca, "fontsize", fontsize);
         set(gca, "Tickdir", "out")
         box on;
@@ -201,15 +201,17 @@ for j = 4
         
         subplot(2, 3, i + 3)
         bar_x = F.xf - F.fault_width / 2;
+        s = effectiveslip;
         bh = bar(bar_x, effectiveslip, 1.0, "blue");
+        bh = bar(bar_x,  sign(s) .* abs(s).^(1.0/3.0), 1.0, "blue");
         bh.EdgeColor = [1, 1, 1];
         set(gca, "XLim", [-200, 200]);
         set(gca, "XTick", [-200, -100, 0, 100, 200]);
-        set(gca, "YLim", [-4, 4]);
-        set(gca, "YTick", [-4.0, -2.0, 0.0, 2.0, 4.0]);
-        set(gca, "YTickLabel", ["-4.0", "-2.0", "0.0", "2.0", "4.0"]);
+        set(gca, "YLim", [-3, 3]);
+        set(gca, "YTick", [-3.0, -2.0, -1.0, 0.0, 1.0, 2.0, 3.0]);
+        set(gca, "YTickLabel", ["-3.0", "-2.0", "-1.0", "0.0", "1.0", "2.0", "3.0"]);
         xlabel("$x \; \mathrm{(km)}$", "interpreter", "latex");
-        ylabel("$s_\mathrm{p^*} \; \mathrm{(mm/yr)}$",  "interpreter", "latex");
+        ylabel("$s_\mathrm{p^*} \; \mathrm{(mm/yr)}^{1/3}$",  "interpreter", "latex");
         set(gca, "fontsize", fontsize);
         set(gca, "Tickdir", "out")
         box on;

@@ -52,7 +52,7 @@ set(gca, "YTickLabel", ["-0.50", "-0.25", "0.00", "0.25", "0.50"]);
 legend([ve_handle, block_handle, csd_handle, perturbation_handle], "$v_\mathrm{t}$", "$v_\mathrm{b}$", "$v_\mathrm{sd}$", "$v_\mathrm{p}$", "location", "northwest", "interpreter", "latex", fontsize=18);
 title("$v_\mathrm{t} = v_\mathrm{b} + v_\mathrm{sd} + v_\mathrm{p}$", "interpreter", "latex");
 if SAVE_FIGURES
-    export_fig("vt_vb_vsd_vp.pdf");
+    export_fig("vt_vb_vsd_vp.png", "-r500");
 end
 
 % Plot VE profiles and perturbations from steady state
@@ -101,7 +101,7 @@ for i = 1:3
     title(strcat("$v_\mathrm{p} \; (n = ", string(n_array(i)), ")$"), "interpreter", "latex", "fontsize", fontsize, FontWeight="normal")
 end
 if SAVE_FIGURES
-    export_fig("velocity_profiles_and_perturbations.pdf");
+    export_fig("velocity_profiles_and_perturbations.png", "-r500");
 end
 
 
@@ -160,7 +160,7 @@ for i = 1:F.nfaults
     end
 end
 if SAVE_FIGURES
-    export_fig("basal_slip_partials.pdf");
+    export_fig("basal_slip_partials.png", "-r500");
 end
 
 % Solve for equivalent slip disribution
@@ -218,8 +218,8 @@ for j = 1:n_ve_profiles
         title(strcat("$s_\mathrm{p^*} \; (n = ", string(n_array(i)), ", \; ", sprintf("t/T = %04.2f", t_array(j) / T / SECONDS_IN_A_YEAR), ")$"), "interpreter", "latex", "fontsize", fontsize, FontWeight="normal")
         set(gca, "TickLabelInterpreter", "latex");
     end
-end
-if SAVE_FIGURES
-    export_fig("vp_sp.pdf");
+    if SAVE_FIGURES
+        export_fig(strcat("vp_sp_", string(j), ".png"), "-r500");
+    end
 end
 

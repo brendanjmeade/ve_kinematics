@@ -1,11 +1,14 @@
 close all;
 clear variables;
 
+addpath(genpath(pwd));
+
 % Load precomputed velocity profiles
 load generate_power_law_velocity_profiles.mat
 
 % Reference parameters
 fontsize = 18;
+SAVE_FIGURES = false;
 
 % Calculate and plot viscoelastic velocity profile at one time
 n_ve_profiles = numel(t_array);
@@ -17,7 +20,6 @@ for i = 1:3
     end
 end
 
-
 % Single idealized plot of 
 % 1 - Total
 % 2 - Block motion
@@ -26,17 +28,19 @@ end
 v_block = zeros(size(x));
 v_block(x < 0) = -0.5;
 v_block(x >= 0) = 0.5;
-v_csd = 1/pi .* atan(H ./ x);
+v_csd = -1/pi .* atan(H ./ x);
 ve_index = 6;
-figure("Position", [0, 0, 800, 400]);
+figure("Position", [0, 0, 600, 400]);
 hold on;
-line_width = 3.0;
+line_width = 2.0;
 ve_handle = plot(x / 1e3, velocity_profile_store{1, ve_index}, "-k", LineWidth=line_width);
 block_handle = plot(x / 1e3, v_block, ".-r", LineWidth=line_width);
-csd_handle = plot(x / 1e3, v_csd, ":r", LineWidth=line_width);
+csd_handle = plot(x(x<0) / 1e3, v_csd(x<0), ":r", LineWidth=line_width);
+csd_handle = plot(x(x>0) / 1e3, v_csd(x>0), ":r", LineWidth=line_width);
 perturbation_handle = plot(x / 1e3, velocity_perturbation_profile_store{1, ve_index}, "--r", LineWidth=line_width);
-xlabel("x (km)");
-ylabel("v (mm/yr)");
+xlabel("$x \; \mathrm{(km)}$", "interpreter", "latex");
+ylabel("$v \; \mathrm{(mm/yr)}$",  "interpreter", "latex");
+set(gca, "fontsize", fontsize, "TickLabelInterpreter", "latex");
 set(gca, "fontsize", fontsize);
 set(gca, "Tickdir", "out");
 set(gcf, "Color", "white")
@@ -45,10 +49,11 @@ set(gca, "YLim", [-0.7, 0.7]);
 set(gca, "XTick", [-200, -100, 0, 100, 200]);
 set(gca, "YTick", [-0.50, -0.25, 0.00, 0.25, 0.50]);
 set(gca, "YTickLabel", ["-0.50", "-0.25", "0.00", "0.25", "0.50"]);
-legend([ve_handle, block_handle, csd_handle, perturbation_handle], "total", "block", "slip deficit", "VE perturbation", "location", "northwest", fontsize=18);
-title("$\mathbf{v}_\mathrm{t} = \mathbf{v}_\mathrm{b} + \mathbf{v}_\mathrm{sd} + \mathbf{v}_\mathrm{p}$", "interpreter", "latex");
-
-return;
+legend([ve_handle, block_handle, csd_handle, perturbation_handle], "$v_\mathrm{t}$", "$v_\mathrm{b}$", "$v_\mathrm{sd}$", "$v_\mathrm{p}$", "location", "northwest", "interpreter", "latex", fontsize=18);
+title("$v_\mathrm{t} = v_\mathrm{b} + v_\mathrm{sd} + v_\mathrm{p}$", "interpreter", "latex");
+if SAVE_FIGURES
+    export_fig("vt_vb_vsd_vp.pdf");
+end
 
 % Plot VE profiles and perturbations from steady state
 figure("Position", [0, 0, 1400, 800]);
@@ -60,8 +65,9 @@ for i = 1:3
         ve_handle = plot(x / 1e3, velocity_profile_store{i, j}, "-r", "LineWidth", 1.0, "Color", cspec(j, :));
     end
     steady_state_handle = plot(x / 1e3, v_steady_state, "-k", LineWidth=1.0);
-    xlabel("x (km)");
-    ylabel("v (mm/yr)");
+    xlabel("$x \; \mathrm{(km)}$", "interpreter", "latex");
+    ylabel("$v_\mathrm{t} \; \mathrm{(mm/yr)}$",  "interpreter", "latex");
+    set(gca, "fontsize", fontsize, "TickLabelInterpreter", "latex");
     set(gca, "fontsize", fontsize);
     set(gca, "Tickdir", "out");
     set(gcf, "Color", "white")
@@ -71,7 +77,8 @@ for i = 1:3
     set(gca, "YTick", [-10.0, -5.0, 0.0, 5.0, 10.0]);
     set(gca, "YTickLabel", ["-10.0", "-5.0", "0.0", "5.0", "10.0"]);
     legend([ve_handle(1), steady_state_handle], "viscoelastic", "steady state", "location", "northwest")
-    title(strcat("velocities (n = ", string(n_array(i)), ")"), "fontsize", fontsize, FontWeight="normal");
+    legend([ve_handle(1), steady_state_handle],"$v_\mathrm{t}$", "$v_\mathrm{sd}$", "Location", "northwest", "interpreter", "latex", "Fontsize", 18);
+    title(strcat("$v_\mathrm{t} \; (n = ", string(n_array(i)), ")$"), "interpreter", "latex", "fontsize", fontsize, FontWeight="normal")
 
     subplot(2, 3, i + 3);
     hold on;
@@ -79,19 +86,24 @@ for i = 1:3
         ve_handle = plot(x / 1e3, sign(velocity_perturbation_profile_store{i, j}) .* (abs(velocity_perturbation_profile_store{i, j})).^(1.0/3.0), "-r", "LineWidth", 1.0, "Color", cspec(j, :));
     end
     steady_state_handle = plot(x / 1e3, zeros(size(v_steady_state)), "-k", LineWidth=1.0);
-    xlabel("x (km)");
-    ylabel("v_p (mm/yr)^{1/3}");
     set(gca, "fontsize", fontsize);
     set(gca, "Tickdir", "out");
     set(gcf, "Color", "white")
     box on;
+    xlabel("$x \; \mathrm{(km)}$", "interpreter", "latex");
+    ylabel("$v_\mathrm{p} \; \mathrm{(mm/yr) ^ {1/3}}$",  "interpreter", "latex");
+    set(gca, "fontsize", fontsize, "TickLabelInterpreter", "latex");
     set(gca, "YLim", [-3.0, 3.0]);
     set(gca, "XTick", [-200, -100, 0, 100, 200]);
     set(gca, "YTick", [-3.0, -2.0, -1.0, 0.0, 1.0, 2.0, 3.0]);
     set(gca, "YTickLabel", ["-3.0", "-2.0", "-1.0", "0.0", "1.0", "2.0", "3.0"]);
-    legend([ve_handle(1), steady_state_handle], "viscoelastic", "steady state", "location", "northwest");
-    title(strcat("velocity perturbations (n = ", string(n_array(i)), ")"), "fontsize", fontsize, FontWeight="normal");
+    legend([ve_handle(1), steady_state_handle],"$v_\mathrm{p}$", "$v_\mathrm{sd}$", "Location", "northwest", "interpreter", "latex", "Fontsize", 18);
+    title(strcat("$v_\mathrm{p} \; (n = ", string(n_array(i)), ")$"), "interpreter", "latex", "fontsize", fontsize, FontWeight="normal")
 end
+if SAVE_FIGURES
+    export_fig("velocity_profiles_and_perturbations.pdf");
+end
+
 
 % Define patches for basal detachment surface
 F.xmin = -220;
@@ -106,7 +118,6 @@ F.depth = 15; % anchor point depth
 F.dip = 0; % dip
 F.poissonsratio = 0.25;
 
-
 % Calculate partials for each of the basal fault patches
 G = zeros(numel(x), F.nfaults);
 for i = 1:F.nfaults
@@ -115,9 +126,9 @@ for i = 1:F.nfaults
    G(:, i) = uy;
 end
 
-
 % Plot partials for each of the basal fault patches
 figure(Position=[0, 0 1000, 600]);
+set(gcf, "Color", "white");
 hold on;
 tiledlayout(5, 5, TileSpacing="none");
 for i = 1:F.nfaults
@@ -130,8 +141,8 @@ for i = 1:F.nfaults
     fh.EdgeColor = "k";
 
     % Draw velocity profile
-    plot(x / 1e3, G(:, i), "-b", LineWidth=1);
-    text(-180, 0.43, string(i), "fontsize", fontsize)
+    plot(x / 1e3, G(:, i), "-b", LineWidth=2);
+    text(-180, 0.43, string(i), "fontsize", fontsize, "interpreter", "latex");
     set(gca, "xlim", [-200, 200])
     set(gca, "ylim", [0, 0.5])
     box on;
@@ -143,19 +154,23 @@ for i = 1:F.nfaults
         set(gca, "XTick", [-200, 0, 200]);
         set(gca, "YTick", [0.0, 0.25, 0.5]);
         set(gca, "YTickLabel", ["0.00", "0.25", "0.50"]);
-        xlabel("x (km)");
-        ylabel("v (mm/yr)");
-        set(gca, "fontsize", fontsize);
+        xlabel("$x \; \mathrm{(km)}$", "interpreter", "latex");
+        ylabel("$v \; \mathrm{(mm/yr)}$",  "interpreter", "latex");
+        set(gca, "fontsize", fontsize, "TickLabelInterpreter", "latex");
     end
 end
-set(gcf, "Color", "white")
-sgtitle("velocities from unit slip on basal dislocation patches", "fontsize", fontsize);
+if SAVE_FIGURES
+    export_fig("basal_slip_partials.pdf");
+end
 
 % Solve for equivalent slip disribution
-for i = 1:3
-%     for j = 1:n_ve_profiles
-    for j = 4
-        
+% for j = 1:n_ve_profiles
+for j = 4
+    markersize = 18;
+    figure("Position", [0, 0, 1400, 800]);
+    set(gcf, "Color", "w");
+
+    for i = 1:3        
         v = velocity_perturbation_profile_store{i, j};
         v = v(:);
         if size(G, 1) > size(G, 2)
@@ -166,44 +181,43 @@ for i = 1:3
         basal_model_velocities = G * effectiveslip;
         
         % Plot comparision of direct VE calculation and basal approximation
-        markersize = 15;
-        figure("Position", [0, 0, 600, 700]);
-        set(gcf, "Color", "w");
-        
-        subplot(2, 1, 1)
+        subplot(2, 3, i)
         hold on;
-        plot(x / 1e3, v, '-b', 'markersize', markersize, LineWidth=2.0);
-        plot(x(1:20:end) / 1e3, basal_model_velocities(1:20:end), '.r', 'markersize', markersize);
+        plot(x / 1e3, v, '--r', 'markersize', markersize, LineWidth=2.0);
+        plot(x(1:20:end) / 1e3, basal_model_velocities(1:20:end), '.b', 'markersize', markersize);
         set(gca, "XLim", [-200, 200]);
         set(gca, "XTick", [-200, -100, 0, 100, 200]);
         set(gca, "YLim", [-2, 2]);
         set(gca, "YTick", [-2.0, -1.0, 0.0, 1.0, 2.0]);
         set(gca, "YTickLabel", ["-2.0", "-1.0", "0.0", "1.0", "2.0"]);
-        xlabel("x (km)");
-        ylabel("v (mm/yr)");
+        xlabel("$x \; \mathrm{(km)}$", "interpreter", "latex");
+        ylabel("$v \; \mathrm{(mm/yr)}$",  "interpreter", "latex");
         set(gca, "fontsize", fontsize);
         set(gca, "Tickdir", "out")
         box on;
-        legend("Maxwell viscoelastic model", "basal dislocations representation", Location="northwest");
-        title("forward viscoelastic and basal model velocities", "fontsize", fontsize, FontWeight="normal")
+        legend("$v_\mathrm{p}$", "$v_\mathrm{p^*}$", "Location", "northwest", "interpreter", "latex", "Fontsize", 18);
+        title(strcat("$v_\mathrm{p^*} \approx v_\mathrm{p} \; (n = ", string(n_array(i)), ", \;", sprintf("t/T = %04.2f", t_array(j) / T / SECONDS_IN_A_YEAR), ")$"), "interpreter", "latex", "fontsize", fontsize, FontWeight="normal")
+        set(gca, "TickLabelInterpreter", "latex");
         
-        subplot(2, 1, 2)
+        subplot(2, 3, i + 3)
         bar_x = F.xf - F.fault_width / 2;
-        bh = bar(bar_x, effectiveslip, 1.0, "red");
+        bh = bar(bar_x, effectiveslip, 1.0, "blue");
+        bh.EdgeColor = [1, 1, 1];
         set(gca, "XLim", [-200, 200]);
         set(gca, "XTick", [-200, -100, 0, 100, 200]);
         set(gca, "YLim", [-4, 4]);
         set(gca, "YTick", [-4.0, -2.0, 0.0, 2.0, 4.0]);
         set(gca, "YTickLabel", ["-4.0", "-2.0", "0.0", "2.0", "4.0"]);
-        xlabel("x (km)");
-        ylabel("s (mm/yr)");
+        xlabel("$x \; \mathrm{(km)}$", "interpreter", "latex");
+        ylabel("$s_\mathrm{p^*} \; \mathrm{(mm/yr)}$",  "interpreter", "latex");
         set(gca, "fontsize", fontsize);
         set(gca, "Tickdir", "out")
         box on;
-        legend("basal patch slip rates", Location="northwest");
-        title("slip rates on basal slip patches", "fontsize", fontsize, FontWeight="normal")
-    
-        suptitle_string = sprintf("t / T = %04.2f", t_array(j) / T / SECONDS_IN_A_YEAR);
-        suptitle(suptitle_string, fontsize)
+        title(strcat("$s_\mathrm{p^*} \; (n = ", string(n_array(i)), ", \; ", sprintf("t/T = %04.2f", t_array(j) / T / SECONDS_IN_A_YEAR), ")$"), "interpreter", "latex", "fontsize", fontsize, FontWeight="normal")
+        set(gca, "TickLabelInterpreter", "latex");
     end
 end
+if SAVE_FIGURES
+    export_fig("vp_sp.pdf");
+end
+

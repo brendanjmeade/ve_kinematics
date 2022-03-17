@@ -126,8 +126,101 @@ for i = 1:F.nfaults
    G(:, i) = uy;
 end
 
+% NAF example
+sar_data = readmatrix("weiss_central_naf_profile.csv", "NumHeaderLines", 1);
+x_initial = sar_data(:, 2);
+x_centered = x_initial + 55;
+v_initial = sar_data(:, 3);
+v_centered = v_initial + 7;
+
+slip_rate = 25;
+D = 15;
+v_deep = slip_rate / pi * atan(x_centered / D);
+
+figure("Color", "white");
+hold on;
+plot(x_centered, v_centered, "ro", MarkerSize=1, MarkerFaceColor="r");
+plot(x_centered, v_deep, "bo", MarkerSize=1, MarkerFaceColor="b");
+
+set(gca, "Tickdir", "out");
+xlabel("$x \; \mathrm{(km)}$", "interpreter", "latex");
+ylabel("$v \; \mathrm{(mm/yr)}$",  "interpreter", "latex");
+set(gca, "fontsize", fontsize, "TickLabelInterpreter", "latex");
+set(gca, "xlim", [-150, 150]);
+set(gca, "ylim", [-20, 20]);
+grid on;
+box on;
+
+% Define patches for basal detachment surface
+F_naf.xmin = -170;
+F_naf.xmax = 170;
+F_naf.nfaults = 2;
+F_naf.fault_width = (F_naf.xmax - F_naf.xmin) / F_naf.nfaults;
+F_naf.xf = F_naf.xmin+F_naf.fault_width:F_naf.fault_width:F_naf.xmax;
+F_naf.length = 20000; % along strike length
+F_naf.yf = -F_naf.length / 2; % anchor point y
+F_naf.strike = deg2rad(90);
+F_naf.depth = D; % anchor point depth
+F_naf.dip = 0; % dip
+F_naf.poissonsratio = 0.25;
+
+% Calculate partials for each of the basal fault patches
+G_naf = zeros(numel(x_centered), F_naf.nfaults);
+for i = 1:F_naf.nfaults
+   [ux, uy, uz] = okada_1985(F_naf.xf(i), F_naf.yf, F_naf.strike, F_naf.depth, F_naf.dip, F_naf.length, ...
+      F_naf.fault_width, 1, 0, 0, x_centered, zeros(size(x_centered)), F_naf.poissonsratio);
+   G_naf(:, i) = uy;
+end
+
+G_naf = [v_deep / slip_rate, G_naf];
+slip_rate_prior_row = [1, zeros(1, F_naf.nfaults)];
+G_naf = [G_naf ; slip_rate_prior_row];
+data_vec = [v_centered ; 18];
+% G_naf = v_deep / slip_rate;
+n_data = numel(v_deep) + 1;
+% W = zeros(numel(v_deep) + 1);
+W = diag(ones(numel(v_deep) + 1, 1));
+W(end, end) = 1e3;
+% effectiveslip1 = inv(G_naf' * W * G_naf) * G_naf' * W * (v_centered) %#ok<*MINV> 
+% effectiveslip2 = G_naf \ (v_centered) %#ok<*MINV> 
+
+effectiveslip1 = inv(G_naf' * W * G_naf) * G_naf' * W * (data_vec) %#ok<*MINV> 
+% effectiveslip2 = G_naf \ (data_vec) %#ok<*MINV> 
+
+
+v_total = G_naf(1:end-1, :) * effectiveslip1;
+v_basal = G_naf(1:end-1, 2:end) * effectiveslip1(2:end);
+
+% Create smoothing matrix
+% n = 9;
+% e = ones(n,1);
+% A = spdiags([e -2*e e],-1:1,n,n);
+% full(A)
+
+figure;
+hold on;
+% plot(x_centered, G_naf(:, 1), "r.")
+% plot(x_centered, G_naf(:, 2), "b.")
+
+figure("Color", "white");
+hold on;
+plot(x_centered, v_centered, "ro", MarkerSize=1, MarkerFaceColor="r");
+plot(x_centered, v_deep, "bo", MarkerSize=1, MarkerFaceColor="b");
+plot(x_centered, v_basal, "go", MarkerSize=1, MarkerFaceColor="g");
+
+set(gca, "Tickdir", "out");
+xlabel("$x \; \mathrm{(km)}$", "interpreter", "latex");
+ylabel("$v \; \mathrm{(mm/yr)}$",  "interpreter", "latex");
+set(gca, "fontsize", fontsize, "TickLabelInterpreter", "latex");
+set(gca, "xlim", [-150, 150]);
+set(gca, "ylim", [-20, 20]);
+grid on;
+box on;
+
+return;
+
 % Plot partials for each of the basal fault patches
-figure(Position=[0, 0 1000, 600]);
+figure(Position=[0, 0, 1000, 600]);
 set(gcf, "Color", "white");
 hold on;
 tiledlayout(5, 5, TileSpacing="none");

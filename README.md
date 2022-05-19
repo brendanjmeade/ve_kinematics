@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/376418003.svg)](https://zenodo.org/badge/latestdoi/376418003)
+
 # ve_kinematics
 - Kinematic representations of linear and non-linear viscoelatic earthquake cycle motions with effectiv basal dislocation patches
 - Generate velocity profiles with `generate_power_law_velocity_profiles.m`
